@@ -9,6 +9,7 @@ import socket
 
 l_slip = 0
 l_susp = 0
+limit = 0.9
 
 # SERVER - CLIENT
 host = socket.gethostname()  # as both code is running on same pc
@@ -19,10 +20,10 @@ try:
     client_socket.connect((host, port))  # connect to the server
 except Exception as e:
     print()
-    print("HIBA kapcsolódáskor: ")
+    print("ERROR on connecting: ")
     print(str(e))
     ac.log()
-    ac.log("HIBA kapcsolódáskor: ")
+    ac.log("ERROR on connecting: ")
     ac.log(str(e))
 
 
@@ -36,7 +37,7 @@ def sendit(stringer):
 
 
 def acMain(ac_version):
-    global l_susp, l_slip
+    global l_susp, l_slip, limit, limitSpinner
 
     appWindow = ac.newApp("RumbleIt")
     ac.setSize(appWindow, 250, 500)
@@ -54,6 +55,13 @@ def acMain(ac_version):
     ac.setCustomFont(l_susp, "Formula", 0, 0)
     ac.setFontSize(l_susp, 22)
     ac.setFontColor(l_susp, 1, 0, 0, 1)
+
+    limitSpinner = ac.addSpinner(appWindow, 'Limit Spinner')
+    ac.setPosition(limitSpinner, 25, 260)
+    ac.setSize(limitSpinner, 150, 30)
+    ac.setRange(limitSpinner, 0.1, 1.0)
+    ac.setValue(limitSpinner, 0.9)
+    ac.addOnValueChangeListener(limitSpinner, limit)
 
     return "RumbleIt"
 
@@ -125,11 +133,10 @@ def acUpdate(deltaT):
     ac.setText(l_susp, str(suspp))
     ac.setText(l_slip, str(slipp))
 
-    if float(slip_fl) > 0.9 or float(slip_fr) > 0.9 or float(slip_rl) > 0.9 or float(slip_rr) > 0.9 or float(suspp1) > 0.9 or float(suspp2) > 0.9 or float(suspp3) > 0.9 or float(suspp4) > 0.9:
+    if float(slip_fl) > limit or float(slip_fr) > limit or float(slip_rl) > limit or float(slip_rr) > limit or float(suspp1) > limit or float(suspp2) > limit or float(suspp3) > limit or float(suspp4) > limit:
         sendit(str(slipp) + str(suspp))
     else:
         sendit("0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0")
-
 
 
 def acShutdown():
