@@ -9,15 +9,18 @@ import socket
 
 l_slip = 0
 l_susp = 0
-limit = 0.9
+sending = ""
+limit = 6
 
 # SERVER - CLIENT
 host = socket.gethostname()  # as both code is running on same pc
 port = 5000  # socket server port number
 
+ac.log("Trying to connect...")
 client_socket = socket.socket()  # instantiate
 try:
     client_socket.connect((host, port))  # connect to the server
+    ac.log("Connection success!")
 except Exception as e:
     print()
     print("ERROR on connecting: ")
@@ -37,37 +40,46 @@ def sendit(stringer):
 
 
 def acMain(ac_version):
-    global l_susp, l_slip, limit, limitSpinner
+    global l_susp, l_slip, limit, limitSpinner, sending
 
     appWindow = ac.newApp("RumbleIt")
-    ac.setSize(appWindow, 250, 500)
+    ac.setSize(appWindow, 200, 80)
     ac.setBackgroundOpacity(appWindow, 0)
     ac.drawBorder(appWindow, 0)
 
-    l_slip = ac.addLabel(appWindow, "Slip:")
-    ac.setPosition(l_slip, 5, 100 + 45)
+    limitSpinner = ac.addSpinner(appWindow, '')
+    ac.setPosition(limitSpinner, 25, 30)
+    ac.setSize(limitSpinner, 150, 30)
+    ac.setRange(limitSpinner, 1, 11)
+    ac.setValue(limitSpinner, limit)
+    ac.addOnValueChangeListener(limitSpinner, limit_changed)
+
+    sending = ac.addLabel(appWindow, "")
+    ac.setPosition(sending, 25, 80)
+    ac.setCustomFont(sending, "Formula", 0, 0)
+    ac.setFontSize(sending, 22)
+    ac.setFontColor(sending, 1, 0, 0, 1)
+
+    l_slip = ac.addLabel(appWindow, "")
+    ac.setPosition(l_slip, 5, 300 + 45)
     ac.setCustomFont(l_slip, "Formula", 0, 0)
     ac.setFontSize(l_slip, 22)
     ac.setFontColor(l_slip, 1, 0, 0, 1)
 
-    l_susp = ac.addLabel(appWindow, "Susp:")
-    ac.setPosition(l_susp, 5, 150 + 45)
+    l_susp = ac.addLabel(appWindow, "")
+    ac.setPosition(l_susp, 5, 350 + 45)
     ac.setCustomFont(l_susp, "Formula", 0, 0)
     ac.setFontSize(l_susp, 22)
-    ac.setFontColor(l_susp, 1, 0, 0, 1)
-
-    limitSpinner = ac.addSpinner(appWindow, 'Limit Spinner')
-    ac.setPosition(limitSpinner, 25, 260)
-    ac.setSize(limitSpinner, 150, 30)
-    ac.setRange(limitSpinner, 0.1, 1.0)
-    ac.setValue(limitSpinner, 0.9)
-    ac.addOnValueChangeListener(limitSpinner, limit)
+    ac.setFontColor(l_susp, 1, 0, 0, 1)  
 
     return "RumbleIt"
 
+def limit_changed(value):
+		global limit		
+		limit =value
 
 def acUpdate(deltaT):
-    global l_susp, l_slip
+    global l_susp, l_slip, sending, limit
 
     sim_info_obj = sim_info.SimInfo()
     slip_fl, slip_fr, slip_rl, slip_rr = ac.getCarState(0, acsys.CS.TyreSlip)
@@ -130,16 +142,23 @@ def acUpdate(deltaT):
         suspp4 = 1
 
     suspp = str(suspp1) + ";" + str(suspp2) + ";" + str(suspp3) + ";" + str(suspp4)
-    ac.setText(l_susp, str(suspp))
-    ac.setText(l_slip, str(slipp))
+    # MUTATNÁ, MENNYI A SLIP MEG A SUSP ÉRTÉKE
+    #ac.setText(l_susp, str(suspp))
+    #ac.setText(l_slip, str(slipp))
 
-    if float(slip_fl) > limit or float(slip_fr) > limit or float(slip_rl) > limit or float(slip_rr) > limit or float(suspp1) > limit or float(suspp2) > limit or float(suspp3) > limit or float(suspp4) > limit:
+    if float(slip_fl) > limit/10 or float(slip_fr) > limit/10 or float(slip_rl) > limit/10 or float(slip_rr) > limit/10 or float(suspp1) > limit/10 or float(suspp2) > limit/10 or float(suspp3) > limit/10 or float(suspp4) > limit/10:
         sendit(str(slipp) + str(suspp))
+        #ac.setText(sending, "CSAPATJA" + str(limit/10))
     else:
-        sendit("0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0")
+        pass
+        #ac.setText(sending, "SEMMI " + str(limit/10))
+        #sendit("0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0")
 
 
 def acShutdown():
     ac.log("RumbleIt is closing now...")
     client_socket.close()
     return
+
+
+

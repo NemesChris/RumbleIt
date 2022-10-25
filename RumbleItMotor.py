@@ -23,10 +23,6 @@ import time
 import socket
 
 
-# EZ KELL A MŰKÖDÉSHEZ, EZ FOGADJA AZ ADATOKAT
-# ITT VAN EREDETILEG:
-# C:\RumbleIt
-
 
 
 # structs according to
@@ -343,9 +339,14 @@ def determine_optimal_sample_rate(joystick=None):
     print("final probe frequency was %s Hz" % j.probe_frequency)
 
 
+def on_exit(sig, func=None):
+    print("Exiting...")
+    f.write("Closing now...\n")
+    f.close()
+    time.sleep(10)  
+
+
 def sample_first_joystick():
-
-
     """
     Grab 1st available gamepad, logging changes to the screen.
     L & R analogue triggers set the vibration motor speed.
@@ -355,19 +356,17 @@ def sample_first_joystick():
 
     print('found %d devices: %s' % (len(joysticks), device_numbers))
 
-    if not joysticks:
+    if not joysticks:        
+        f.write("No available joystick found!\n")
+        f.write("Closing now...\n")
+        f.close()
         sys.exit(0)
 
     j = joysticks[0]
     print('using %d' % j.device_number)
-
+    f.write("Found joystick: " + str(j.device_number) + "\n")
     battery = j.get_battery_information()
     print(battery)
-
-
-
-
-
 
 
     # get the hostname
@@ -382,32 +381,37 @@ def sample_first_joystick():
     server_socket.listen(2)
     conn, address = server_socket.accept()  # accept new connection
     print("Connection from: " + str(address))
-
+    f.write("Got connection from " + str(address)+ "\n")
 
 
 
 
     @j.event
     def on_button(button, pressed):
-        print('button', button, pressed)
+        pass
+        #print('button', button, pressed)
 
     left_speed = 0
     right_speed = 0
 
     @j.event
     def on_axis(axis, value):
-        left_speed = 0
-        right_speed = 0
+        # left_speed = 0
+        # right_speed = 0
 
-        print('axis', axis, value)
+        #print('axis', axis, value)
         if axis == "left_trigger":
-            left_speed = value
+            pass
+            #left_speed = value
         elif axis == "right_trigger":
-            right_speed = value
+            pass
+            #right_speed = value
         elif axis == "l_thumb_y":
-            left_speed = value
+            pass
+            #left_speed = value
         elif axis == "r_thumb_y":
-            right_speed = value
+            pass
+            #right_speed = value
         #j.set_vibration(left_speed, right_speed)
 
     while True:
@@ -431,17 +435,28 @@ def sample_first_joystick():
 
             if right_speed > 0 or left_speed > 0:
                 j.set_vibration(left_speed, right_speed)
-                print("Rumbleeee!")
-            else:
-                j.set_vibration(0, 0)
-                print("")
+                print(str(left_speed) + "      " + str(right_speed))                
+                #print("Rumbleeee!")
+            #else:
+                #j.set_vibration(0.0, 0.0)
+                #print("")
 
 
         conn.send(data.encode())  # send data to the client
-
+    f.close()
     conn.close()  # close the connection
 
 
 if __name__ == "__main__":
+   
+    f = open("C:\RumbleIt\log.txt", "w")
+    f.write("Server starting...\n")         
     sample_first_joystick()
     # determine_optimal_sample_rate()
+
+
+# ELŐBB EZT KELL ELINDÍTANI, AZTÁN MEHET MAGA A FUTAM
+# AZ AC AMÚGY MEHET A MENÜBEN. HA NEM INDUL A FUTAM,
+# AKKOR BERAGADT EZA  SZERVER, KI KELL LŐNI ELŐBB
+
+# MINDEN ÚJ VERSENYNÉL ÚJRA KELL INDÍTANI, MERT ADDIG BEHAL A FUTAM
