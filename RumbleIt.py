@@ -16,16 +16,14 @@ limit = 6
 host = socket.gethostname()  # as both code is running on same pc
 port = 5000  # socket server port number
 
-ac.log("Trying to connect...")
+ac.log("RumbleIt trying to connect...")
 client_socket = socket.socket()  # instantiate
 try:
     client_socket.connect((host, port))  # connect to the server
     ac.log("Connection success!")
-except Exception as e:
-    print()
+except Exception as e:   
     print("ERROR on connecting: ")
     print(str(e))
-    ac.log()
     ac.log("ERROR on connecting: ")
     ac.log(str(e))
 
