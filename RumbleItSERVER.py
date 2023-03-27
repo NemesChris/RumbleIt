@@ -12,18 +12,15 @@ Modified to add deadzones, reduce noise, and support vibration
 Only req is Pyglet 1.2alpha1 or higher:
 pip install --upgrade http://pyglet.googlecode.com/archive/tip.zip
 """
-import os
-
-from itertools import count, starmap
-from pyglet import event
-from operator import itemgetter, attrgetter
 import ctypes
+import os
+import socket
 import sys
 import time
-import socket
+from itertools import count, starmap
+from operator import attrgetter, itemgetter
 
-
-
+from pyglet import event
 
 # structs according to
 # http://msdn.microsoft.com/en-gb/library/windows/desktop/ee417001%28v=vs.85%29.aspx
@@ -369,19 +366,25 @@ def sample_first_joystick():
     print(battery)
 
 
-    # get the hostname
+    # get the hostname    
     host = socket.gethostname()
     port = 5000  # initiate port no above 1024
 
-    server_socket = socket.socket()  # get instance
-    # look closely. The bind() function takes tuple as argument
-    server_socket.bind((host, port))  # bind host address and port together
+    try:
+        server_socket = socket.socket()  # get instance
+        # look closely. The bind() function takes tuple as argument
+        server_socket.bind((host, port))  # bind host address and port together
 
-    # configure how many client the server can listen simultaneously
-    server_socket.listen(2)
-    conn, address = server_socket.accept()  # accept new connection
-    print("Connection from: " + str(address))
-    f.write("Got connection from " + str(address)+ "\n")
+        # configure how many client the server can listen simultaneously
+        server_socket.listen(2)
+        conn, address = server_socket.accept()  # accept new connection
+        print("Connection from: " + str(address))
+        f.write("Got connection from " + str(address)+ "\n")
+    except Exception as e:
+        print("Connection error: " + str(e))
+        f.write("Connection error " + str(e)+ "\n")
+        f.close()
+        sys.exit(0)
 
 
 
@@ -438,10 +441,11 @@ def sample_first_joystick():
                 j.set_vibration(left_speed, right_speed)
                 print(str(left_speed) + "      " + str(right_speed))                
                 #print("Rumbleeee!")
-            #else:
-                #j.set_vibration(0.0, 0.0)
+            else:
+                j.set_vibration(0.0, 0.0)
                 #print("")
-
+        else:
+            j.set_vibration(0.0, 0.0)
 
         conn.send(data.encode())  # send data to the client
     f.close()
@@ -457,6 +461,7 @@ if __name__ == "__main__":
 
 # BE KELL TENNI A C:\RumbleIt\ MAPPÁBA ÉS ELINDÍTANI Python-NAL
 # HA NEM INDUL, AKKOR AZ AZÉRT VAN, MERT NINCS BEKÖTVE A KORMÁNY...! (Log mutatja)
+# A KORMÁNYNAK X ÜZEMMÓDBAN KELL LENNIE!
 # ELŐBB EZT KELL ELINDÍTANI, AZTÁN MEHET MAGA A FUTAM
 # AZ AC AMÚGY MEHET A MENÜBEN. HA NEM INDUL A FUTAM,
 # AKKOR BERAGADT EZ A SZERVER, KI KELL LŐNI ELŐBB
