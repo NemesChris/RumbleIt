@@ -420,6 +420,7 @@ def sample_first_joystick():
         data = conn.recv(1024).decode()
         if len(str(data)) > 0:
             #print(str(data))
+            # kiolvassuk a megkapott adatokat, a susp és slip értékeket egybecsomagolva
             slipFL, slipFR, slipRL, slipRR, suspFL, suspFR, suspRL, suspRR = data.split(";")
             #print(str(slipFL) + "      " + str(suspRR))
 
@@ -454,7 +455,8 @@ if __name__ == "__main__":
     sample_first_joystick()
     # determine_optimal_sample_rate()
 
-
+# BE KELL TENNI A C:\RumbleIt\ MAPPÁBA ÉS ELINDÍTANI Python-NAL
+# HA NEM INDUL, AKKOR AZ AZÉRT VAN, MERT NINCS BEKÖTVE A KORMÁNY...! (Log mutatja)
 # ELŐBB EZT KELL ELINDÍTANI, AZTÁN MEHET MAGA A FUTAM
 # AZ AC AMÚGY MEHET A MENÜBEN. HA NEM INDUL A FUTAM,
 # AKKOR BERAGADT EZ A SZERVER, KI KELL LŐNI ELŐBB

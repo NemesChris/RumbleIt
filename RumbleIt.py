@@ -121,6 +121,7 @@ def acUpdate(deltaT):
     if slip_rr < 0:
         slip_rr = 0
 
+    # csúszásértékek összeszedése
     slipp = str(slip_fl) + ";" + str(slip_fr) + ";" + str(slip_rl) + ";" + str(slip_rr) + ";"
 
     suspp = ac.getCarState(0, acsys.CS.SuspensionTravel)
@@ -139,12 +140,14 @@ def acUpdate(deltaT):
     if float(suspp4) > 1:
         suspp4 = 1
 
+    # felfüggesztésértékek összeszedése
     suspp = str(suspp1) + ";" + str(suspp2) + ";" + str(suspp3) + ";" + str(suspp4)
     # MUTATNÁ, MENNYI A SLIP MEG A SUSP ÉRTÉKE
     #ac.setText(l_susp, str(suspp))
     #ac.setText(l_slip, str(slipp))
 
     if float(slip_fl) > limit/10 or float(slip_fr) > limit/10 or float(slip_rl) > limit/10 or float(slip_rr) > limit/10 or float(suspp1) > limit/10 or float(suspp2) > limit/10 or float(suspp3) > limit/10 or float(suspp4) > limit/10:
+        # elküldi a csúszás és felfüggesztésértékeket egyben, majd a motor szétszedi őket 4-4 részre
         sendit(str(slipp) + str(suspp))
         #ac.setText(sending, "CSAPATJA" + str(limit/10))
     else:
@@ -158,5 +161,5 @@ def acShutdown():
     client_socket.close()
     return
 
-
+# KELL, HOGY MENJEN MÁR A SZERVER ELŐTTE, A C:\RumbleIt\ MAPPÁBAN.
 
