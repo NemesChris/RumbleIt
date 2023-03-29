@@ -439,17 +439,14 @@ def sample_first_joystick():
 
             if right_speed > 0 or left_speed > 0:
                 j.set_vibration(left_speed, right_speed)
-                print(str(left_speed) + "      " + str(right_speed))                
-                #print("Rumbleeee!")
+                # print(str(left_speed) + "      " + str(right_speed))                
             else:
                 j.set_vibration(0.0, 0.0)
-                #print("")
         else:
             j.set_vibration(0.0, 0.0)
 
-        conn.send(data.encode())  # send data to the client
-    f.close()
-    conn.close()  # close the connection
+        conn.send(data.encode())  # send data to the client        
+   
 
 
 if __name__ == "__main__":
@@ -457,7 +454,9 @@ if __name__ == "__main__":
     f = open("C:\RumbleIt\log.txt", "w")
     f.write("Server starting...\n")         
     sample_first_joystick()
-    # determine_optimal_sample_rate()
+    f.close()
+    conn.close()  # close the connection
+    
 
 # BE KELL TENNI A C:\RumbleIt\ MAPPÁBA ÉS ELINDÍTANI Python-NAL
 # HA NEM INDUL, AKKOR AZ AZÉRT VAN, MERT NINCS BEKÖTVE A KORMÁNY...! (Log mutatja)
@@ -467,3 +466,8 @@ if __name__ == "__main__":
 # AKKOR BERAGADT EZ A SZERVER, KI KELL LŐNI ELŐBB
 
 # MINDEN ÚJ VERSENYNÉL ÚJRA KELL INDÍTANI, MERT ADDIG BEHAL A FUTAM
+
+
+
+# meg kell nézni, van e már kapcsolat, és ha nincs, akkor meg kell szakítani
+# hogy lehessen újjal csatlakozni!
