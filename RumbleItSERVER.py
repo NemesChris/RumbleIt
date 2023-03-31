@@ -444,6 +444,7 @@ def sample_first_joystick():
                 j.set_vibration(0.0, 0.0)
         else:
             j.set_vibration(0.0, 0.0)
+            f.write("No data...\n") 
 
         conn.send(data.encode())  # send data to the client        
    
@@ -453,9 +454,7 @@ if __name__ == "__main__":
    
     f = open("C:\RumbleIt\log.txt", "w")
     f.write("Server starting...\n")         
-    sample_first_joystick()
-    f.close()
-    conn.close()  # close the connection
+    sample_first_joystick()    
     
 
 # BE KELL TENNI A C:\RumbleIt\ MAPPÁBA ÉS ELINDÍTANI Python-NAL

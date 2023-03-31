@@ -10,7 +10,6 @@ import sim_info
 
 l_slip = 0
 l_susp = 0
-sending = ""
 limit = 6
 enable_suspension = True
 enable_slip = True
@@ -60,31 +59,13 @@ def slip_on_off(dummy, value):
         enable_slip = True
 
 def acMain(ac_version):
-    global l_susp, l_slip, limit, limitSpinner, sending, suspensionTrigger, enable_suspension, slipTrigger, enable_slip
+    global l_susp, l_slip, limit, limitSpinner, suspensionTrigger, enable_suspension, slipTrigger, enable_slip
 
     appWindow = ac.newApp("RumbleIt")
-    ac.setSize(appWindow, 200, 150)
+    ac.setSize(appWindow, 200, 260)
     ac.setBackgroundOpacity(appWindow, 0)
     ac.drawBorder(appWindow, 0)  
-
-    sending = ac.addLabel(appWindow, "")
-    ac.setPosition(sending, 25, 80)
-    ac.setCustomFont(sending, "Formula", 0, 0)
-    ac.setFontSize(sending, 22)
-    ac.setFontColor(sending, 1, 0, 0, 1)
-
-    l_slip = ac.addLabel(appWindow, "Slip:")
-    ac.setPosition(l_slip, 5, 300 + 45)
-    ac.setCustomFont(l_slip, "Formula", 0, 0)
-    ac.setFontSize(l_slip, 22)
-    ac.setFontColor(l_slip, 1, 0, 0, 1)
-
-    l_susp = ac.addLabel(appWindow, "Suspension:")
-    ac.setPosition(l_susp, 5, 350 + 45)
-    ac.setCustomFont(l_susp, "Formula", 0, 0)
-    ac.setFontSize(l_susp, 22)
-    ac.setFontColor(l_susp, 1, 0, 0, 1)  
-
+   
     limitSpinner = ac.addSpinner(appWindow, 'Limiter')
     ac.setPosition(limitSpinner, 25, 60)
     ac.setSize(limitSpinner, 150, 30)
@@ -97,15 +78,25 @@ def acMain(ac_version):
     ac.setSize(suspensionTrigger, 150, 30)
     ac.addOnClickedListener(suspensionTrigger, suspension_on_off)
 
+    l_susp = ac.addLabel(appWindow, "Suspension:")
+    ac.setPosition(l_susp, 25, 150)
+    ac.setFontSize(l_susp, 15)
+    ac.setFontColor(l_susp, 1, 0, 0, 1) 
+
     slipTrigger = ac.addButton(appWindow, 'Enable Slip.: ' + str(enable_slip))
-    ac.setPosition(slipTrigger, 25, 160)
+    ac.setPosition(slipTrigger, 25, 190)
     ac.setSize(slipTrigger, 150, 30)
     ac.addOnClickedListener(slipTrigger, slip_on_off)
+
+    l_slip = ac.addLabel(appWindow, "Slip:")
+    ac.setPosition(l_slip, 25, 230)
+    ac.setFontSize(l_slip, 15)
+    ac.setFontColor(l_slip, 1, 0, 0, 1)  
 
     return "RumbleIt"
 
 def acUpdate(deltaT):
-    global l_susp, l_slip, sending, limit, enable_suspension, suspensionTrigger, enable_slip, slipTrigger
+    global l_susp, l_slip, limit, enable_suspension, suspensionTrigger, enable_slip, slipTrigger
 
     sim_info_obj = sim_info.SimInfo()
 
