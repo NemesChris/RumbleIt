@@ -122,13 +122,20 @@ def connect_to_server():
         server_socket = socket.socket()  # get instance
         # look closely. The bind() function takes tuple as argument
         server_socket.bind((host, port))  # bind host address and port together
-
+        server_socket.settimeout(20.0)
         # configure how many client the server can listen simultaneously
-        server_socket.listen(2)
-        conn, address = server_socket.accept()  # accept new connection
-        print("Connection from: " + str(address))
-        f.write("Got connection from " + str(address)+ "\n")
-        return conn
+        try:
+            server_socket.listen(2)
+            conn, address = server_socket.accept()  # accept new connection
+            print("Connection from: " + str(address))
+            f.write("Got connection from " + str(address)+ "\n")
+            return conn
+        except socket.timeout:
+            print("Timeout reached. No incoming connections. Exiting...")
+            f.write("Timeout reached. No incoming connections. Exiting...")
+            f.close()
+            sys.exit(0)
+
     except Exception as e:
         print("Connection error: " + str(e))
         f.write("Connection error " + str(e)+ "\n")
