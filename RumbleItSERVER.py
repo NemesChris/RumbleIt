@@ -113,6 +113,29 @@ ERROR_DEVICE_NOT_CONNECTED = 1167
 ERROR_SUCCESS = 0
 
 
+def connect_to_server():
+     # get the hostname    
+    host = socket.gethostname()
+    port = 5000  # initiate port no above 1024
+
+    try:
+        server_socket = socket.socket()  # get instance
+        # look closely. The bind() function takes tuple as argument
+        server_socket.bind((host, port))  # bind host address and port together
+
+        # configure how many client the server can listen simultaneously
+        server_socket.listen(2)
+        conn, address = server_socket.accept()  # accept new connection
+        print("Connection from: " + str(address))
+        f.write("Got connection from " + str(address)+ "\n")
+        return conn
+    except Exception as e:
+        print("Connection error: " + str(e))
+        f.write("Connection error " + str(e)+ "\n")
+        f.close()
+        sys.exit(0)
+
+
 class XInputJoystick(event.EventDispatcher):
 
     """
@@ -365,29 +388,7 @@ def sample_first_joystick():
     battery = j.get_battery_information()
     print(battery)
 
-
-    # get the hostname    
-    host = socket.gethostname()
-    port = 5000  # initiate port no above 1024
-
-    try:
-        server_socket = socket.socket()  # get instance
-        # look closely. The bind() function takes tuple as argument
-        server_socket.bind((host, port))  # bind host address and port together
-
-        # configure how many client the server can listen simultaneously
-        server_socket.listen(2)
-        conn, address = server_socket.accept()  # accept new connection
-        print("Connection from: " + str(address))
-        f.write("Got connection from " + str(address)+ "\n")
-    except Exception as e:
-        print("Connection error: " + str(e))
-        f.write("Connection error " + str(e)+ "\n")
-        f.close()
-        sys.exit(0)
-
-
-
+    conn = connect_to_server()
 
     @j.event
     def on_button(button, pressed):
@@ -444,7 +445,10 @@ def sample_first_joystick():
                 j.set_vibration(0.0, 0.0)
         else:
             j.set_vibration(0.0, 0.0)
-            f.write("No data...\n") 
+            f.write("No data...\n")
+            time.sleep(3)
+            conn = connect_to_server()
+
 
         conn.send(data.encode())  # send data to the client        
    
@@ -456,6 +460,8 @@ if __name__ == "__main__":
     f.write("Server starting...\n")         
     sample_first_joystick()    
     
+
+
 
 # BE KELL TENNI A C:\RumbleIt\ MAPPÁBA ÉS ELINDÍTANI Python-NAL
 # HA NEM INDUL, AKKOR AZ AZÉRT VAN, MERT NINCS BEKÖTVE A KORMÁNY...! (Log mutatja)
@@ -470,3 +476,5 @@ if __name__ == "__main__":
 
 # meg kell nézni, van e már kapcsolat, és ha nincs, akkor meg kell szakítani
 # hogy lehessen újjal csatlakozni!
+# ki kell szervezni egy külön függvénybe a kapcsolódást, és meg kell nézni menet közben,
+# hogy aktív-e a kapcsolat, és ha nem, akkor újraconnect!
