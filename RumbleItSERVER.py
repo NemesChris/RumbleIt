@@ -117,7 +117,7 @@ def connect_to_server():
      # get the hostname    
     host = socket.gethostname()
     port = 5000  # initiate port no above 1024
-
+    print("Trying to connect server...")
     try:
         server_socket = socket.socket()  # get instance
         # look closely. The bind() function takes tuple as argument
@@ -445,10 +445,9 @@ def sample_first_joystick():
                 j.set_vibration(0.0, 0.0)
         else:
             j.set_vibration(0.0, 0.0)
-            f.write("No data...\n")
+            f.write("No data. Waiting for another server or session...\n")
             time.sleep(3)
             conn = connect_to_server()
-
 
         conn.send(data.encode())  # send data to the client        
    
@@ -471,10 +470,3 @@ if __name__ == "__main__":
 # AKKOR BERAGADT EZ A SZERVER, KI KELL LŐNI ELŐBB
 
 # MINDEN ÚJ VERSENYNÉL ÚJRA KELL INDÍTANI, MERT ADDIG BEHAL A FUTAM
-
-
-
-# meg kell nézni, van e már kapcsolat, és ha nincs, akkor meg kell szakítani
-# hogy lehessen újjal csatlakozni!
-# ki kell szervezni egy külön függvénybe a kapcsolódást, és meg kell nézni menet közben,
-# hogy aktív-e a kapcsolat, és ha nem, akkor újraconnect!
