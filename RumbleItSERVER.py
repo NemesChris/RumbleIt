@@ -14,6 +14,7 @@ pip install --upgrade http://pyglet.googlecode.com/archive/tip.zip
 """
 import ctypes
 import os
+import cv2
 import socket
 import sys
 import time
@@ -366,25 +367,29 @@ def determine_optimal_sample_rate(joystick=None):
     print("final probe frequency was %s Hz" % j.probe_frequency)
 
 
-def on_exit(sig, func=None):
-    print("Exiting...")
-    f.write("Closing now...\n")
-    f.close()
-    time.sleep(10)  
-
-
 def sample_first_joystick():
     """
     Grab 1st available gamepad, logging changes to the screen.
     L & R analogue triggers set the vibration motor speed.
     """
-    joysticks = XInputJoystick.enumerate_devices()
-    device_numbers = list(map(attrgetter('device_number'), joysticks))
-
-    print('found %d devices: %s' % (len(joysticks), device_numbers))
+    joysticks = None
+    try_to_find_joysticks = 0
+    f.write("Looking for available joysticks...\n")
+    print("Looking for available joysticks...")
+    while not joysticks and try_to_find_joysticks < 5:
+        print(f"Try {try_to_find_joysticks+1}...")
+        f.write(f"Try {try_to_find_joysticks+1}...\n")
+        joysticks = XInputJoystick.enumerate_devices()
+        device_numbers = list(map(attrgetter('device_number'), joysticks))
+        try_to_find_joysticks += 1
+        f.write('found %d devices: %s\n' % (len(joysticks), device_numbers))
+        print('found %d devices: %s' % (len(joysticks), device_numbers))
+        time.sleep(3)
 
     if not joysticks:        
+        print("No available joystick found!")
         f.write("No available joystick found!\n")
+        print("Closing now...")
         f.write("Closing now...\n")
         f.close()
         sys.exit(0)
@@ -393,6 +398,7 @@ def sample_first_joystick():
     print('using %d' % j.device_number)
     f.write("Found joystick: " + str(j.device_number) + "\n")
     battery = j.get_battery_information()
+    f.write(battery)
     print(battery)
 
     conn = connect_to_server()
@@ -426,6 +432,13 @@ def sample_first_joystick():
         #j.set_vibration(left_speed, right_speed)
 
     while True:
+        k = cv2.waitKey(1) & 0xFF
+        # exit with the button 'q'
+        if k == ord('q'):
+            print("Exiting...")
+            f.write("Closing now...\n")
+            f.close()
+
         j.dispatch_events()
         time.sleep(.01)
         data = conn.recv(1024).decode()
@@ -477,3 +490,5 @@ if __name__ == "__main__":
 # AKKOR BERAGADT EZ A SZERVER, KI KELL LŐNI ELŐBB
 
 # MINDEN ÚJ VERSENYNÉL ÚJRA KELL INDÍTANI, MERT ADDIG BEHAL A FUTAM
+
+# pyinstaller --onefile .\RumbleItSERVER.py
