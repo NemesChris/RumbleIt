@@ -14,13 +14,13 @@ pip install --upgrade http://pyglet.googlecode.com/archive/tip.zip
 """
 import ctypes
 import os
-import cv2
 import socket
 import sys
 import time
 from itertools import count, starmap
 from operator import attrgetter, itemgetter
 
+import cv2
 from pyglet import event
 
 # structs according to
@@ -114,34 +114,85 @@ ERROR_DEVICE_NOT_CONNECTED = 1167
 ERROR_SUCCESS = 0
 
 
-def connect_to_server():
-     # get the hostname    
+# def start_server_for_client():
+#     # get the hostname
+#     host = socket.gethostname()
+#     port = 5000  # initiate port no above 1024
+#     print("Trying to connect server...")
+#     f.write("Trying to connect server... " + "\n")
+#     try:
+#         server_socket = socket.socket()  # get instance
+#         # look closely. The bind() function takes tuple as argument
+#         server_socket.bind((host, port))  # bind host address and port together
+#         server_socket.settimeout(45.0)
+#         # configure how many client the server can listen simultaneously
+#         try:
+#             server_socket.listen(2)
+#             conn, address = server_socket.accept()  # accept new connection
+#             print("Got connection from: " + str(address))
+#             f.write("Got connection from " + str(address) + "\n")
+#             return conn
+#         except socket.timeout:
+#             print("Timeout reached. No incoming connections. Retrying...")
+#             f.write("Timeout reached. No incoming connections. Retrying...")
+#             start_server_for_client()
+#             # f.close()
+#             # sys.exit(0)
+    # except Exception as e:
+    #     print("Connection error: " + str(e))
+    #     f.write("Connection error: " + str(e)+ "\n")
+    #     f.close()
+    #     sys.exit(0)
+
+
+def start_server_for_client():
+    # Get the hostname
     host = socket.gethostname()
-    port = 5000  # initiate port no above 1024
-    print("Trying to connect server...")
+    port = 5000  # Initiate port number above 1024
+    print("Trying to connect to server...")
+    f.write("Trying to connect to server... \n")
+
+    server_socket = socket.socket()  # Get socket instance
+    server_socket.settimeout(45.0)  # Set timeout duration
+
     try:
-        server_socket = socket.socket()  # get instance
-        # look closely. The bind() function takes tuple as argument
-        server_socket.bind((host, port))  # bind host address and port together
-        server_socket.settimeout(20.0)
-        # configure how many client the server can listen simultaneously
-        try:
-            server_socket.listen(2)
-            conn, address = server_socket.accept()  # accept new connection
-            print("Connection from: " + str(address))
-            f.write("Got connection from " + str(address)+ "\n")
-            return conn
-        except socket.timeout:
-            print("Timeout reached. No incoming connections. Exiting...")
-            f.write("Timeout reached. No incoming connections. Exiting...")
-            f.close()
-            sys.exit(0)
+        server_socket.bind((host, port))  # Bind host address and port together
+        server_socket.listen(2)  # Configure how many clients the server can listen to
+
+        while True:
+            try:
+                # Accept a connection from a client
+                conn, address = server_socket.accept()
+                print("Got connection from: " + str(address))
+                f.write("Got connection from " + str(address) + "\n")
+                return conn
+            except socket.timeout:
+                print("Timeout reached. No incoming connections. Retrying...")
+                f.write("Timeout reached. No incoming connections. Retrying...\n")
+                time.sleep(1)  # Optional: pause before retrying
+                continue  # Retry the connection in case of a timeout
 
     except Exception as e:
-        print("Connection error: " + str(e))
-        f.write("Connection error " + str(e)+ "\n")
-        f.close()
-        sys.exit(0)
+        print(f"Error occurred: {e}")
+        f.write(f"Error occurred: {e}\n")
+
+    finally:
+        # Ensure that the socket is always closed
+        server_socket.close()
+        print("Server socket closed.")
+        f.write("Server socket closed.\n")
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class XInputJoystick(event.EventDispatcher):
@@ -386,7 +437,7 @@ def sample_first_joystick():
         print('found %d devices: %s' % (len(joysticks), device_numbers))
         time.sleep(3)
 
-    if not joysticks:        
+    if not joysticks:
         print("No available joystick found!")
         f.write("No available joystick found!\n")
         print("Closing now...")
@@ -396,12 +447,13 @@ def sample_first_joystick():
 
     j = joysticks[0]
     print('using %d' % j.device_number)
+    print("Found joystick: " + str(j.device_number))
     f.write("Found joystick: " + str(j.device_number) + "\n")
     battery = j.get_battery_information()
-    f.write(battery)
-    print(battery)
 
-    conn = connect_to_server()
+    print("Connecting to server...")
+    f.write("Connecting to server..." + "\n")
+    conn = start_server_for_client()
 
     @j.event
     def on_button(button, pressed):
@@ -460,35 +512,40 @@ def sample_first_joystick():
 
             if right_speed > 0 or left_speed > 0:
                 j.set_vibration(left_speed, right_speed)
-                # print(str(left_speed) + "      " + str(right_speed))                
+                # print(str(left_speed) + "      " + str(right_speed))
             else:
                 j.set_vibration(0.0, 0.0)
         else:
             j.set_vibration(0.0, 0.0)
             f.write("No data. Waiting for another server or session...\n")
             time.sleep(3)
-            conn = connect_to_server()
+            conn = start_server_for_client()
 
-        conn.send(data.encode())  # send data to the client        
-   
+        conn.send(data.encode())  # send data to the client
+
 
 
 if __name__ == "__main__":
-   
+
     f = open("C:\RumbleIt\log.txt", "w")
-    f.write("Server starting...\n")         
-    sample_first_joystick()    
-    
+    f.write("Server starting...\n")
+    sample_first_joystick()
 
 
 
-# BE KELL TENNI A C:\RumbleIt\ MAPPÁBA ÉS ELINDÍTANI Python-NAL
+# EL KELL INDÍTANI AZ ASSETTO-T VAGY A CM-T, HOGY A VERSENYIG NE KELLJEN SOKAT SZARAKODNI
+# BE KELL MENNI A C:\RumbleIt\ MAPPÁBA ÉS ELINDÍTANI AZ EXE-T
 # HA NEM INDUL, AKKOR AZ AZÉRT VAN, MERT NINCS BEKÖTVE A KORMÁNY...! (Log mutatja)
 # A KORMÁNYNAK X ÜZEMMÓDBAN KELL LENNIE!
-# ELŐBB EZT KELL ELINDÍTANI, AZTÁN MEHET MAGA A FUTAM
+# ELŐBB EZT KELL ELINDÍTANI, AZTÁN MEHET MAGA A FUTAM, DE GYORSAN,
+# MERT 30 MÁSODPERC VAN RÁ
+
 # AZ AC AMÚGY MEHET A MENÜBEN. HA NEM INDUL A FUTAM,
-# AKKOR BERAGADT EZ A SZERVER, KI KELL LŐNI ELŐBB
+# AKKOR BERAGADT EZ A SZERVER, KI KELL LŐNI ELŐBB --> DE EZ JAVÍTVA
 
-# MINDEN ÚJ VERSENYNÉL ÚJRA KELL INDÍTANI, MERT ADDIG BEHAL A FUTAM
 
+# ÚJ VERZIÓ LÉTREHOZÁSA:
+# H:
+# cd H:\BDO\steamapps\common\assettocorsa\apps\python\RumbleIt
 # pyinstaller --onefile .\RumbleItSERVER.py
+# és a dist mappába kerül a kész új verzió, ez mehet a C:  -re
