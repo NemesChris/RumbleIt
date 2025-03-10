@@ -261,9 +261,14 @@ class XInputJoystick(event.EventDispatcher):
         XInputSetState.argtypes = [ctypes.c_uint, ctypes.POINTER(XINPUT_VIBRATION)]
         XInputSetState.restype = ctypes.c_uint
 
-        vibration = XINPUT_VIBRATION(
-            int(left_motor * 65535), int(right_motor * 65535))
-        XInputSetState(self.device_number, ctypes.byref(vibration))
+        left_motor = max(0, min(left_motor, 1))*0.9
+        right_motor = max(0, min(right_motor, 1))*0.9
+
+        vibration = XINPUT_VIBRATION(int(left_motor * 65535), int(right_motor * 65535))
+        try:
+            XInputSetState(self.device_number, ctypes.byref(vibration))
+        except Exception as ex:
+            print('Error on vibrating: ', str(ex))
 
     def get_battery_information(self):
         "Get battery type & charge level"
@@ -449,6 +454,7 @@ def sample_first_joystick():
     print('using %d' % j.device_number)
     print("Found joystick: " + str(j.device_number))
     f.write("Found joystick: " + str(j.device_number) + "\n")
+    print("All data: " + str(j))
     battery = j.get_battery_information()
 
     print("Connecting to server...")
