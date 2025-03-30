@@ -55,6 +55,10 @@ class XINPUT_BATTERY_INFORMATION(ctypes.Structure):
                 ("BatteryLevel", ctypes.c_ubyte)]
 
 xinput = ctypes.windll.xinput1_4
+#xinput = ctypes.windll.xinput9_1_0  # this is the Win 8 version ?
+# xinput1_2, xinput1_1 (32-bit Vista SP1)
+# xinput1_3 (64-bit Vista SP1)
+
 
 def struct_dict(struct):
     """
@@ -109,7 +113,39 @@ def gen_bit_values(number):
 ERROR_DEVICE_NOT_CONNECTED = 1167
 ERROR_SUCCESS = 0
 
-def start_server_for_client(f):
+
+# def start_server_for_client():
+#     # get the hostname
+#     host = socket.gethostname()
+#     port = 5000  # initiate port no above 1024
+#     print("Trying to connect server...")
+#     f.write("Trying to connect server... " + "\n")
+#     try:
+#         server_socket = socket.socket()  # get instance
+#         # look closely. The bind() function takes tuple as argument
+#         server_socket.bind((host, port))  # bind host address and port together
+#         server_socket.settimeout(45.0)
+#         # configure how many client the server can listen simultaneously
+#         try:
+#             server_socket.listen(2)
+#             conn, address = server_socket.accept()  # accept new connection
+#             print("Got connection from: " + str(address))
+#             f.write("Got connection from " + str(address) + "\n")
+#             return conn
+#         except socket.timeout:
+#             print("Timeout reached. No incoming connections. Retrying...")
+#             f.write("Timeout reached. No incoming connections. Retrying...")
+#             start_server_for_client()
+#             # f.close()
+#             # sys.exit(0)
+    # except Exception as e:
+    #     print("Connection error: " + str(e))
+    #     f.write("Connection error: " + str(e)+ "\n")
+    #     f.close()
+    #     sys.exit(0)
+
+
+def start_server_for_client():
     # Get the hostname
     host = socket.gethostname()
     port = 5000  # Initiate port number above 1024
@@ -145,6 +181,18 @@ def start_server_for_client(f):
         server_socket.close()
         print("Server socket closed.")
         f.write("Server socket closed.\n")
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class XInputJoystick(event.EventDispatcher):
@@ -221,6 +269,31 @@ class XInputJoystick(event.EventDispatcher):
             XInputSetState(self.device_number, ctypes.byref(vibration))
         except Exception as ex:
             print('Error on vibrating: ', str(ex))
+
+    def get_battery_information(self):
+        "Get battery type & charge level"
+        BATTERY_DEVTYPE_GAMEPAD = 0x00
+        BATTERY_DEVTYPE_HEADSET = 0x01
+        # Set up function argument types and return type
+        XInputGetBatteryInformation = xinput.XInputGetBatteryInformation
+        XInputGetBatteryInformation.argtypes = [ctypes.c_uint, ctypes.c_ubyte, ctypes.POINTER(XINPUT_BATTERY_INFORMATION)]
+        XInputGetBatteryInformation.restype = ctypes.c_uint
+
+        battery = XINPUT_BATTERY_INFORMATION(0,0)
+        XInputGetBatteryInformation(self.device_number, BATTERY_DEVTYPE_GAMEPAD, ctypes.byref(battery))
+
+        #define BATTERY_TYPE_DISCONNECTED       0x00
+        #define BATTERY_TYPE_WIRED              0x01
+        #define BATTERY_TYPE_ALKALINE           0x02
+        #define BATTERY_TYPE_NIMH               0x03
+        #define BATTERY_TYPE_UNKNOWN            0xFF
+        #define BATTERY_LEVEL_EMPTY             0x00
+        #define BATTERY_LEVEL_LOW               0x01
+        #define BATTERY_LEVEL_MEDIUM            0x02
+        #define BATTERY_LEVEL_FULL              0x03
+        batt_type = "Unknown" if battery.BatteryType == 0xFF else ["Disconnected", "Wired", "Alkaline","Nimh"][battery.BatteryType]
+        level = ["Empty", "Low", "Medium", "Full"][battery.BatteryLevel]
+        return batt_type, level
 
     def dispatch_events(self):
         "The main event loop for a joystick"
@@ -302,16 +375,61 @@ list(map(XInputJoystick.register_event_type, [
 ]))
 
 
-def rumble_it():
+def determine_optimal_sample_rate(joystick=None):
+    """
+    Poll the joystick slowly (beginning at 1 sample per second)
+    and monitor the packet stream for missed packets, indicating
+    that the sample rate is too slow to avoid missing packets.
+    Missed packets will translate to a lost information about the
+    joystick state.
+    As missed packets are registered, increase the sample rate until
+    the target reliability is reached.
+    """
+    # in my experience, you want to probe at 200-2000Hz for optimal
+    #  performance
+    if joystick is None:
+        joystick = XInputJoystick.enumerate_devices()[0]
+
+    j = joystick
+
+    print("Move the joystick or generate button events characteristic of your app")
+    print("Hit Ctrl-C or press button 6 (<, Back) to quit.")
+
+    # here I use the joystick object to store some state data that
+    #  would otherwise not be in scope in the event handlers
+
+    # begin at 1Hz and work up until missed messages are eliminated
+    j.probe_frequency = 1  # Hz
+    j.quit = False
+    j.target_reliability = .99  # okay to lose 1 in 100 messages
+
+    @j.event
+    def on_button(button, pressed):
+        # flag the process to quit if the < button ('back') is pressed.
+        j.quit = (button == 6 and pressed)
+
+    @j.event
+    def on_missed_packet(number):
+        print('missed %(number)d packets' % vars())
+        total = j.received_packets + j.missed_packets
+        reliability = j.received_packets / float(total)
+        if reliability < j.target_reliability:
+            j.missed_packets = j.received_packets = 0
+            j.probe_frequency *= 1.5
+
+    while not j.quit:
+        j.dispatch_events()
+        time.sleep(1.0 / j.probe_frequency)
+    print("final probe frequency was %s Hz" % j.probe_frequency)
+
+
+def sample_first_joystick():
     """
     Grab 1st available gamepad, logging changes to the screen.
     L & R analogue triggers set the vibration motor speed.
     """
     joysticks = None
     try_to_find_joysticks = 0
-
-    f = open("C:\RumbleIt\log.txt", "w")
-    f.write("Server starting...\n")
     f.write("Looking for available joysticks...\n")
     print("Looking for available joysticks...")
     while not joysticks and try_to_find_joysticks < 5:
@@ -337,10 +455,11 @@ def rumble_it():
     print("Found joystick: " + str(j.device_number))
     f.write("Found joystick: " + str(j.device_number) + "\n")
     print("All data: " + str(j))
+    battery = j.get_battery_information()
 
     print("Connecting to server...")
     f.write("Connecting to server..." + "\n")
-    conn = start_server_for_client(f)
+    conn = start_server_for_client()
 
     @j.event
     def on_button(button, pressed):
@@ -406,14 +525,17 @@ def rumble_it():
             j.set_vibration(0.0, 0.0)
             f.write("No data. Waiting for another server or session...\n")
             time.sleep(3)
-            conn = start_server_for_client(f)
+            conn = start_server_for_client()
 
         conn.send(data.encode())  # send data to the client
 
 
 
 if __name__ == "__main__":
-    rumble_it()
+
+    f = open("C:\RumbleIt\log.txt", "w")
+    f.write("Server starting...\n")
+    sample_first_joystick()
 
 
 
