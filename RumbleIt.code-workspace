@@ -1,0 +1,287 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"editor.fontFamily": "'Fira Code', 'Droid Sans Mono', 'monospace', monospace",
+		"editor.fontLigatures": true,
+		"editor.rulers": [
+			80,
+			110
+		],
+		"djangointellisense.projectRoot": "${workspaceFolder}",
+		"djangointellisense.settingsModule": "core.settings.dev",
+		"files.exclude": {
+			".pytest_cache": true,
+			"*/.mo": true
+		},
+		"autoDocstring.docstringFormat": "google",
+		"vsintellicode.features.python.deepLearning": "enabled",
+		"editor.quickSuggestions": {
+			"other": true,
+			"comments": false,
+			"strings": true
+		},
+		"commit-message-editor.tokens": [
+			{
+				"label": "Type",
+				"name": "type",
+				"type": "enum",
+				"options": [
+					{
+						"label": "---",
+						"value": ""
+					},
+					{
+						"label": "✨ feat",
+						"description": "A new feature"
+					},
+					{
+						"label": "🪲 fix",
+						"description": "A bug fix"
+					},
+					{
+						"label": "🔨 task",
+						"description": "Updating code, simple tasks etc."
+					},
+					{
+						"label": "♻️ refactor",
+						"description": "A code change that neither fixes a bug nor adds a feature"
+					},
+					{
+						"label": "🔀 merge",
+						"description": "Merge branches"
+					},
+					{
+						"label": "⚡️ perf",
+						"description": "A code change that improves performance"
+					},
+					{
+						"label": "🎨 style",
+						"description": "Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)"
+					},
+					{
+						"label": "📝 docs",
+						"description": "Documentation only changes"
+					},
+					{
+						"label": "🌐 lang",
+						"description": "Adding translations for the project."
+					},
+					{
+						"label": "👷 ci",
+						"description": "Changes to our CI configuration files and scripts."
+					},
+					{
+						"label": "🚀 build",
+						"description": "Changes that affect the build system or external dependencies (example scopes: gulp, broccoli, npm)"
+					},
+					{
+						"label": "🗑️ revert",
+						"description": "Reverting changes to a previous state."
+					},
+					{
+						"label": "✅ test",
+						"description": "Adding missing tests or correcting existing tests"
+					}
+				],
+				"description": "Type of changes"
+			},
+			{
+				"label": "Scope",
+				"name": "scope",
+				"description": "A scope may be provided to a commit’s type, to provide additional contextual information and is contained within parenthesis, e.g., \"feat(parser): add ability to parse arrays\".",
+				"type": "text",
+				"multiline": false,
+				"prefix": "(",
+				"suffix": ")"
+			},
+			{
+				"label": "Short description",
+				"name": "description",
+				"description": "Short description in the subject line.",
+				"type": "text",
+				"multiline": false
+			},
+			{
+				"label": "Body",
+				"name": "body",
+				"description": "Optional body",
+				"type": "text",
+				"multiline": true,
+				"lines": 5,
+				"maxLines": 10
+			},
+			{
+				"label": "Breaking change",
+				"name": "breaking_change",
+				"type": "boolean",
+				"value": "BREAKING CHANGE: ",
+				"default": false
+			},
+			{
+				"label": "Footer",
+				"name": "footer",
+				"description": "Optional footer",
+				"type": "text",
+				"multiline": true
+			}
+		],
+		"editor.mouseWheelZoom": true,
+		"workbench.tree.indent": 30,
+		"editor.tokenColorCustomizations": {
+			"comments": "#007924",
+			"variables": "#a06000",
+			"[Default Dark+]": {
+				"textMateRules": [
+					{
+						"scope": [
+							"punctuation.quasi.element",
+							"string.quoted.single.python",
+							"string.quoted.docstring.multi.python",
+						],
+						"settings": {
+							"foreground": "#228a02"
+						}
+					},
+					{
+						"scope": "variable.parameter",
+						"settings": {
+							"foreground": "#db8400"
+						}
+					},
+					{
+						"scope": "variable.other.readwrite",
+						"settings": {
+							"foreground": "#0782f5"
+						}
+					},
+					{
+						"scope": "keyword.control.flow.python",
+						"settings": {
+							"foreground": "#e04a30"
+						}
+					},
+					{
+						"scope": "constant.language.python",
+						"settings": {
+							"foreground": "#f64242"
+						}
+					},
+					{
+						"scope": "variable.other.property",
+						"settings": {
+							"foreground": "#d879eb"
+						}
+					},
+					{
+						"scope": "constant.numeric",
+						"settings": {
+							"foreground": "#b1f19d"
+						}
+					},
+					{
+						"scope": "variable.parameter.function.language.special.self.python",
+						"settings": {
+							"foreground": "#7f0099"
+						}
+					},
+					{
+						"scope": [
+							"comment",
+							"punctuation.definition.comment",
+						],
+						"settings": {
+							"foreground": "#858585"
+						}
+					},
+					{
+						"scope": [
+							"storage.type.class.python",
+							"entity.name.type.class",
+						],
+						"settings": {
+							"foreground": "#ffc64a"
+						}
+					},
+					{
+						"scope": [
+							"storage.type.function.python",
+							"entity.name.function",
+							"entity.name.function.member",
+							"punctuation.definition.arguments.end.python",
+							"punctuation.definition.arguments.begin.python",
+						],
+						"settings": {
+							"foreground": "#59d0ff"
+						}
+					},
+				],
+			},
+		},
+		"editor.suggest.insertMode": "replace",
+		"editor.suggest.localityBonus": true,
+		"gitlens.codeLens.recentChange.enabled": false,
+		"gitlens.codeLens.authors.enabled": false,
+		"python.formatting.autopep8Args": [
+			"--max-line-length 110"
+		],
+		"debug.showInStatusBar": "always",
+		"python.linting.mypyEnabled": true,
+		"python.linting.flake8Enabled": true,
+		"python.sortImports.path": "",
+		"python.analysis.autoImportCompletions": false,
+		"python.analysis.completeFunctionParens": true,
+		"commit-message-editor.view.defaultView": "form",
+		"commit-message-editor.view.saveAndClose": true,
+		"python.testing.autoTestDiscoverOnSaveEnabled": true,
+		"python.testing.pytestEnabled": true,
+		"python.testing.pytestPath": "pytest",
+		"terminal.integrated.cursorStyle": "line",
+		"editor.trimAutoWhitespace": false,
+		"files.trimTrailingWhitespace": true,
+		"todo-tree.filtering.excludeGlobs": [
+			"**/node_modules",
+			"docs"
+		],
+		"python.languageServer": "Pylance",
+		"files.autoSave": "onWindowChange",
+		"todo-tree.tree.showCountsInTree": true,
+		"python.linting.mypyCategorySeverity.error": "Information",
+		"python.linting.mypyCategorySeverity.note": "Information",
+		"python.analysis.useLibraryCodeForTypes": true,
+		"python.analysis.typeCheckingMode": "off",
+		"python.linting.pylintCategorySeverity.error": "Information",
+		"python.analysis.diagnosticMode": "openFilesOnly",
+		"todo-tree.highlights.defaultHighlight": {
+			"iconColour": "#757575",
+			"background": "#ffe5bb"
+		},
+		"python.linting.pycodestyleEnabled": false,
+		"python.linting.pylintEnabled": false,
+		"githubPullRequests.useReviewMode": {
+			"merged": false
+		},
+		"python.formatting.provider": "autopep8",
+		"debug.console.closeOnEnd": true,
+		"todo-tree.tree.scanAtStartup": false,
+		"python.linting.mypyArgs": [
+			"--follow-imports=silent",
+			"--ignore-missing-imports",
+			"--show-column-numbers",
+			"--no-pretty",
+			"--check-untyped-defs"
+		],
+		"python.terminal.activateEnvironment": false,
+		"python.terminal.activateEnvInCurrentTerminal": true,
+		"editor.fontSize": 14,
+		"scm.inputFontSize": 14,
+		"debug.console.fontSize": 14,
+		"markdown.preview.fontSize": 14,
+		"terminal.integrated.fontSize": 14,
+		"workbench.colorCustomizations": {},
+		"editor.formatOnSave": true,
+	}
+}
